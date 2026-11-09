@@ -1046,3 +1046,76 @@ button,
     font-size: 13px;
   }
 }
+/* INNOVELOUS — FINAL MOBILE FONT LEGIBILITY FIX
+   Paste this BELOW the previous mobile CSS patch at the end of styles.css.
+*/
+@media (max-width: 700px) {
+  /* Raise small supporting text to a readable minimum on phones. */
+  p,
+  a,
+  li,
+  label,
+  small,
+  .eyebrow,
+  .section-kicker,
+  .section-topline,
+  .hero-intro,
+  .hero-proof,
+  .hero-bottom,
+  .image-caption,
+  .approach-strip article > span,
+  .approach-strip small,
+  .section-note,
+  .service-card p,
+  .service-card > div > span,
+  .project-card small,
+  .project-card-copy small,
+  .project-card p,
+  .project-card-copy p,
+  .project-image-index,
+  .project-filter,
+  .project-view-button,
+  .work-note,
+  .contact-copy > p,
+  .contact-side > p,
+  .contact-side > a,
+  .lead-form label,
+  .lead-form input,
+  .lead-form select,
+  .lead-form textarea,
+  .form-message,
+  .footer-about p,
+  .footer-column h3,
+  .footer-column a,
+  .footer-legal,
+  .footer-legal a,
+  .footer-links a {
+    font-size: max(12px, 0.875em) !important;
+    line-height: 1.55;
+  }
+
+  /* Keep navigation, buttons and form controls comfortably readable/tappable. */
+  .nav-links > a,
+  .nav-cta,
+  .button,
+  .text-link,
+  .menu-toggle {
+    font-size: max(12px, 0.875em) !important;
+  }
+
+  .brand-name small {
+    font-size: 12px !important;
+    letter-spacing: 1px;
+  }
+
+  /* Prevent long text and email addresses from overflowing narrow screens. */
+  .brand-name,
+  .nav-links a,
+  .service-card h3,
+  .project-card h3,
+  .contact-side a,
+  .footer-column a {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
