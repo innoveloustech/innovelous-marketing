@@ -20,3 +20,26 @@
 .topbar .brand > .brand-mark, .topbar .brand > .brand-word { display: none; }
 .dashboard-supplied-logo { display: block; position: relative; width: 76px; height: 62px; flex: 0 0 76px; overflow: hidden; }
 .dashboard-supplied-logo img { position: absolute; width: 152px; height: auto; max-width: none; left: -38.1px; top: -23.7px; }
+
+/* Dashboard Testimonials panel — matches the existing website Client Stories cards. */
+.topbar .brand > .brand-mark,
+.topbar .brand > .brand-word { display:none; }
+.dashboard-supplied-logo {
+  display:flex; align-items:center; justify-content:center;
+  width:48px; height:48px; flex:0 0 48px; overflow:visible;
+}
+.dashboard-supplied-logo img {
+  position:static; display:block; width:42px; height:42px;
+  max-width:100%; object-fit:contain;
+}
+.login-logo {
+  display:block; width:58px; height:58px; object-fit:contain;
+  margin-bottom:22px;
+}
+.testimonial-form { margin-top:15px; padding:21px; }
+.testimonial-rating { margin-left:8px; color:#ffbd59; letter-spacing:2px; }
+.testimonial-quote-preview {
+  margin-top:9px; color:#c2b9c7; font-size:9px; line-height:1.7;
+  white-space:pre-wrap; overflow-wrap:anywhere;
+}
+@media(max-width:700px) { .testimonial-form { padding:16px; } }

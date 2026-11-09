@@ -1369,7 +1369,7 @@ button,
         inset 0 1px 0 rgba(192, 132, 252, 0.12);
 }
 
-/* ===== Infinite testimonial marquee: scoped to the testimonials section ===== */
+/* ===== Testimonials: each CMS record is rendered once ===== */
 .testimonials {
   --testimonial-card-width: clamp(250px, 22vw, 300px);
   --testimonial-gap: 18px;
@@ -1382,16 +1382,19 @@ button,
 .testimonial-viewport {
   width: 100%;
   min-width: 0;
-  overflow: hidden;
 }
 
 .testimonial-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 16px 0 25px;
-  cursor: default;
-  touch-action: pan-y;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 3.2%, #000 96.8%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 3.2%, #000 96.8%, transparent 100%);
+  cursor: grab;
+  touch-action: pan-x pan-y;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
+.testimonial-viewport::-webkit-scrollbar { display: none; }
 
 .testimonial-track {
   display: flex;
@@ -1400,9 +1403,8 @@ button,
   max-width: none;
   gap: 0;
   padding: 0;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  animation: testimonial-marquee 40s linear infinite;
+  transform: none;
+  animation: none !important;
 }
 
 .testimonial-group {
@@ -1416,22 +1418,14 @@ button,
 .testimonial-card {
   flex: 0 0 var(--testimonial-card-width);
   width: var(--testimonial-card-width);
+  scroll-snap-align: start;
 }
 
-/* Pause the card track only; the aurora layers keep moving independently. */
-.testimonial-viewport:hover .testimonial-track {
-  animation-play-state: paused;
-}
+.testimonial-viewport { scroll-snap-type: x proximity; }
+.testimonial-viewport:hover .testimonial-track { animation: none !important; }
 
-@keyframes testimonial-marquee {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-50%, 0, 0); }
-}
-
-/* Navigation controls are intentionally absent from this marquee. */
-.testimonial-arrow {
-  display: none !important;
-}
+/* Navigation controls are intentionally absent; users can swipe/scroll horizontally. */
+.testimonial-arrow { display: none !important; }
 
 @media (max-width: 1000px) {
   .testimonials {
@@ -1463,3 +1457,7 @@ button,
     transform: none !important;
   }
 }
+
+
+/* CMS sections stay hidden until published records are loaded. */
+section[hidden] { display: none !important; }

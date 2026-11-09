@@ -1,6 +1,6 @@
 const bundled=window.NOVELUS_SUPABASE||{};
 const saved=(()=>{try{return JSON.parse(localStorage.getItem('novelus.supabase')||'null')}catch{return null}})();
-let config=saved||bundled, client=null, user=null, services=[], cases=[], leads=[], settings=null;
+let config=saved||bundled, client=null, user=null, services=[], cases=[], leads=[], testimonials=[], testimonialsLoadError=null, settings=null;
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dateLabel=d=>new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
@@ -11,20 +11,47 @@ function showSetup(){ $('#setupView').hidden=false; if(config.url)$('#setupForm'
 function showDashboard(){ $('#loginView').hidden=true;$('#dashboardView').hidden=false;$('#signOut').hidden=false;$('#userEmail').textContent=user.email||'';$('#today').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});$('#overviewDate').textContent=new Date().toLocaleDateString(undefined,{month:'long',year:'numeric'}); }
 async function login(e){e.preventDefault();const f=e.currentTarget,b=$('button[type=submit]',f);msg($('#loginMessage'),'');if(!client){showSetup();return}b.disabled=true;const {data,error}=await client.auth.signInWithPassword({email:f.email.value,password:f.password.value});b.disabled=false;if(error){msg($('#loginMessage'),error.message,true);return}user=data.user;const {data:role,error:roleError}=await client.from('marketing_admins').select('user_id').eq('user_id',user.id).maybeSingle();if(roleError||!role){await client.auth.signOut();user=null;msg($('#loginMessage'),'This account is not authorized for the marketing dashboard.',true);return}showDashboard();await refresh();}
 async function refresh(){
-  const [setRes,svcRes,caseRes,leadRes]=await Promise.all([client.from('site_settings').select('*').eq('id',1).maybeSingle(),client.from('services').select('*').order('sort_order').order('created_at').order('id'),client.from('case_studies').select('*').order('sort_order').order('created_at').order('id'),client.from('leads').select('*').order('created_at',{ascending:false})]);
+  const [setRes,svcRes,caseRes,leadRes,testimonialRes]=await Promise.all([client.from('site_settings').select('*').eq('id',1).maybeSingle(),client.from('services').select('*').order('sort_order').order('created_at').order('id'),client.from('case_studies').select('*').order('sort_order').order('created_at').order('id'),client.from('leads').select('*').order('created_at',{ascending:false}),client.from('testimonials').select('*').order('sort_order').order('created_at')]);
   for(const [name,res] of [['site settings',setRes],['services',svcRes],['projects',caseRes],['enquiries',leadRes]])if(res.error)console.error(`Could not load ${name}:`,res.error);
+  testimonialsLoadError=testimonialRes.error||null;
+  if(testimonialsLoadError)console.warn('Could not load testimonials. Run testimonials-migration.sql:',testimonialsLoadError);
   const failures=[setRes,svcRes,caseRes,leadRes].filter(x=>x.error);
   msg($('#dashboardMessage'),failures.length?'Some content could not load. Check your connection and run the included CMS migration. '+failures.map(x=>x.error.message).join(' '):'',!!failures.length);
   settings=setRes.data||{id:1,hero_eyebrow:'DIGITAL TRANSFORMATION',hero_title:'Websites that bring in customers, not just visitors.',hero_text:'Web design, online stores, apps and software built to help your business grow.',primary_cta:'Start Your Project',secondary_cta:'View Our Work',contact_email:'hello@innovelous.com'};
-  services=svcRes.data||[];cases=caseRes.data||[];leads=leadRes.data||[];
+  services=svcRes.data||[];cases=caseRes.data||[];leads=leadRes.data||[];testimonials=testimonialRes.data||[];
   const sf=$('#settingsForm');Object.entries(settings).forEach(([k,v])=>{if(sf.elements[k])sf.elements[k].value=v??''});
   $('#statServices').textContent=services.filter(x=>x.is_published).length;$('#statCases').textContent=cases.filter(x=>x.is_published).length;$('#statLeads').textContent=leads.filter(x=>x.status==='new').length;$('#leadCount').textContent=leads.filter(x=>x.status==='new').length;
-  drawServices();drawCases();drawLeads();drawRecent();
+  drawServices();drawCases();drawLeads();drawRecent();drawTestimonials();
 }
 function drawRecent(){const root=$('#recentLeads'),items=leads.slice(0,4);root.innerHTML=items.length?items.map(x=>`<div class="recent-item"><div><b>${esc(x.name)}</b><span>${esc(x.email)} · ${dateLabel(x.created_at)}</span></div><span class="status ${esc(x.status)}">${esc(x.status)}</span></div>`).join(''):'<div class="empty">No enquiries yet. New website messages will appear here.</div>';}
 function drawServices(){const root=$('#servicesList');root.innerHTML=services.length?services.map(x=>`<article class="record">${x.image_url?`<img class="project-thumb" src="${esc(x.image_url)}" alt="" loading="lazy"/>`:''}<div><div class="record-title">${esc(x.title)}</div><div class="record-summary">${esc(x.summary)}</div><div class="record-meta">ORDER ${x.sort_order} · ${x.is_published?'VISIBLE ON WEBSITE':'HIDDEN'}</div></div><div class="record-actions"><span class="badge ${x.is_published?'live':''}">${x.is_published?'Published':'Draft'}</span><button class="mini" data-visibility="services" data-record-id="${esc(x.id)}">${x.is_published?'Hide':'Show'}</button><button class="mini" data-edit-service="${esc(x.id)}">Edit</button><button class="mini danger" data-delete-service="${esc(x.id)}">Delete</button></div></article>`).join(''):'<div class="surface empty">No services yet. Add your first service above.</div>';}
 function drawCases(){const root=$('#casesList');root.innerHTML=cases.length?cases.map(x=>`<article class="record">${x.image_url?`<img class="project-thumb" src="${esc(x.image_url)}" alt="" loading="lazy"/>`:''}<div><div class="record-title">${esc(x.title)}</div><div class="record-summary">${esc(x.summary)}</div><div class="record-meta">${esc(x.category||'SELECTED WORK')} · ORDER ${x.sort_order}${x.project_date?' · '+esc(x.project_date):''}</div></div><div class="record-actions"><span class="badge ${x.is_published?'live':''}">${x.is_published?'Published':'Draft'}</span><button class="mini" data-visibility="case_studies" data-record-id="${esc(x.id)}">${x.is_published?'Hide':'Show'}</button><button class="mini" data-edit-case="${esc(x.id)}">Edit</button><button class="mini danger" data-delete-case="${esc(x.id)}">Delete</button></div></article>`).join(''):'<div class="surface empty">No projects yet. Add your first project above.</div>';}
 function drawLeads(){const root=$('#leadsList'),filter=$('#leadFilter').value,rows=filter==='all'?leads:leads.filter(x=>x.status===filter);root.innerHTML=rows.length?rows.map(x=>`<article class="lead"><div class="lead-head"><div><h3>${esc(x.name)}</h3><div class="lead-details"><a href="mailto:${esc(x.email)}">${esc(x.email)}</a>${x.company?`<span>${esc(x.company)}</span>`:''}</div></div><span class="status ${esc(x.status)}">${esc(x.status)}</span></div>${x.service?`<div class="record-meta">INTERESTED IN · ${esc(x.service)}</div>`:''}<p>${esc(x.message)}</p><div class="lead-foot"><time>${dateLabel(x.created_at)}</time><select data-lead-status="${esc(x.id)}"><option value="new" ${x.status==='new'?'selected':''}>New</option><option value="contacted" ${x.status==='contacted'?'selected':''}>Contacted</option><option value="closed" ${x.status==='closed'?'selected':''}>Closed</option></select></div></article>`).join(''):'<div class="surface empty">No enquiries in this view.</div>';}
+
+function drawTestimonials(){
+  const root=$('#testimonialsList');
+  if(testimonialsLoadError){
+    root.innerHTML='<div class="surface empty">Testimonials table is not ready yet. Run the testimonials-migration.sql file in Supabase SQL Editor, then reload the dashboard.</div>';
+    return;
+  }
+  root.innerHTML=testimonials.length?testimonials.map(x=>{
+    const rating=Math.max(1,Math.min(5,Number(x.rating)||5));
+    return `<article class="record testimonial-record">
+      <div>
+        <div class="record-title">${esc(x.client_name)} <span class="testimonial-rating">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</span></div>
+        <div class="record-summary">${esc(x.designation||'')}${x.company_name?' · '+esc(x.company_name):''}</div>
+        <div class="testimonial-quote-preview">${esc(x.quote)}</div>
+        <div class="record-meta">ORDER ${Number(x.sort_order)||0} · ${x.is_published?'VISIBLE ON WEBSITE':'HIDDEN'}</div>
+      </div>
+      <div class="record-actions">
+        <span class="badge ${x.is_published?'live':''}">${x.is_published?'Published':'Hidden'}</span>
+        <button class="mini" data-edit-testimonial="${esc(x.id)}">Edit</button>
+        <button class="mini danger" data-delete-testimonial="${esc(x.id)}">Delete</button>
+      </div>
+    </article>`;
+  }).join(''):'<div class="surface empty">No testimonials yet. Add the first client story above.</div>';
+}
+
 const imageEditors = {};
 function setupImageEditor(kind, formSelector, bucket, messageSelector) {
   const form=$(formSelector), fileInput=$(`#${kind}ImageFile`), drop=$(`#${kind}ImageDrop`);
@@ -97,6 +124,72 @@ $('#signOut').addEventListener('click',async()=>{await client?.auth.signOut();lo
 $$('.tab').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.panel)));$$('[data-go]').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.go)));$('#newService').addEventListener('click',()=>openForm('', '#serviceForm', services, '#serviceFormTitle'));$('#newCase').addEventListener('click',()=>openForm('', '#caseForm', cases, '#caseFormTitle'));
 $('#servicesList').addEventListener('click',e=>{const edit=e.target.closest('[data-edit-service]'),del=e.target.closest('[data-delete-service]');if(edit)openForm(edit.dataset.editService,'#serviceForm',services,'#serviceFormTitle');if(del)deleteRecord('services',del.dataset.deleteService,refresh)});
 $('#casesList').addEventListener('click',e=>{const edit=e.target.closest('[data-edit-case]'),del=e.target.closest('[data-delete-case]');if(edit)openForm(edit.dataset.editCase,'#caseForm',cases,'#caseFormTitle');if(del)deleteRecord('case_studies',del.dataset.deleteCase,refresh)});
+
+$('#newTestimonial').addEventListener('click',()=>{
+  const form=$('#testimonialForm');
+  form.reset();
+  form.elements.id.value='';
+  form.elements.rating.value='5';
+  form.elements.is_published.checked=true;
+  form.elements.sort_order.value=testimonials.length?Math.max(...testimonials.map(x=>Number(x.sort_order)||0))+1:1;
+  $('#testimonialFormTitle').textContent='New testimonial';
+  msg($('#testimonialMessage'),'');
+  form.hidden=false;
+  form.scrollIntoView({behavior:'smooth',block:'center'});
+});
+
+$('#testimonialForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const form=e.currentTarget,button=$('button[type=submit]',form);
+  if(button.disabled||!form.reportValidity())return;
+  button.disabled=true;
+  try{
+    const data=Object.fromEntries(new FormData(form));
+    data.rating=Number(data.rating);
+    data.sort_order=Number(data.sort_order)||0;
+    data.is_published=form.elements.is_published.checked;
+    if(!Number.isInteger(data.sort_order)||data.sort_order<0||data.sort_order>2147483647)throw new Error('Display order must be a whole number from 0 to 2147483647.');
+    if(!data.id)delete data.id;
+    const {error}=await client.from('testimonials').upsert(data);
+    if(error)throw error;
+    form.hidden=true;
+    await refresh();
+    msg($('#dashboardMessage'),'Testimonial saved. Published testimonials appear on the website.');
+  }catch(error){
+    msg($('#testimonialMessage'),error.message||'Could not save testimonial.',true);
+  }finally{
+    button.disabled=false;
+  }
+});
+
+$('#testimonialsList').addEventListener('click',async e=>{
+  const edit=e.target.closest('[data-edit-testimonial]');
+  const del=e.target.closest('[data-delete-testimonial]');
+  if(edit){
+    const row=testimonials.find(x=>x.id===edit.dataset.editTestimonial);
+    if(!row)return;
+    const form=$('#testimonialForm');
+    form.reset();
+    Object.entries(row).forEach(([key,value])=>{
+      if(form.elements[key]){
+        if(form.elements[key].type==='checkbox')form.elements[key].checked=!!value;
+        else form.elements[key].value=value??'';
+      }
+    });
+    $('#testimonialFormTitle').textContent='Edit testimonial';
+    msg($('#testimonialMessage'),'');
+    form.hidden=false;
+    form.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  if(del){
+    if(!confirm('Delete this testimonial?'))return;
+    const {error}=await client.from('testimonials').delete().eq('id',del.dataset.deleteTestimonial);
+    if(error){msg($('#dashboardMessage'),error.message,true);return;}
+    await refresh();
+    msg($('#dashboardMessage'),'Testimonial deleted.');
+  }
+});
+
 $$('[data-close]').forEach(b=>b.addEventListener('click',()=>$('#'+b.dataset.close.replace(/^#/, '')).hidden=true));
 imageEditors['#serviceForm']=setupImageEditor('service','#serviceForm','service-images','#serviceMessage');
 imageEditors['#caseForm']=setupImageEditor('project','#caseForm','project-images','#caseMessage');

@@ -106,14 +106,7 @@ grant insert on public.leads to anon, authenticated;
 grant select, update, delete on public.leads to authenticated;
 grant select on public.marketing_admins to authenticated;
 
-insert into public.services (title,summary,sort_order,is_published) values
- ('Brand strategy','Define your position, sharpen your story, and make your difference unmistakable.',1,true),
- ('Performance marketing','Reach the right audience with campaigns built to learn, improve, and scale.',2,true),
- ('SEO & content','Earn attention with useful content and a stronger presence in search.',3,true),
- ('Social & creative','Create a consistent brand people recognize and want to spend time with.',4,true),
- ('Web experiences','Turn curious visitors into confident customers with a clearer digital journey.',5,true),
- ('Insights & analytics','Know what is working, what is changing, and where to focus next.',6,true)
- on conflict do nothing;
+
 
 
 -- After creating an admin user in Supabase Authentication, grant that user dashboard access:
