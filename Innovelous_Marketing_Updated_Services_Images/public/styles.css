@@ -420,3 +420,629 @@ body.modal-open{overflow:hidden}
   .project-modal-content{padding:25px 21px 28px}
   .project-modal-content h2{font-size:30px}
 }
+/* =========================================================
+   INNOVELOUS MARKETING — MOBILE RESPONSIVENESS PATCH
+   Add this at the VERY END of styles.css.
+   ========================================================= */
+
+/* Global overflow and media safety */
+html {
+  width: 100%;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  overflow-x: clip;
+}
+
+img,
+svg,
+video,
+iframe {
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+.project-view-button,
+.project-filter,
+.nav-links a {
+  touch-action: manipulation;
+}
+
+/* Tablet layouts */
+@media (max-width: 1000px) {
+  .nav-shell {
+    width: calc(100% - 36px);
+  }
+
+  .hero-inner,
+  .section {
+    width: calc(100% - 40px);
+  }
+
+  .hero-copy {
+    width: min(680px, 78%);
+  }
+
+  .service-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .work-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contact {
+    grid-template-columns: 1fr 0.8fr;
+    gap: 32px;
+  }
+
+  .footer-columns {
+    gap: 36px;
+  }
+}
+
+/* Phones and small tablets */
+@media (max-width: 700px) {
+  :root {
+    --gutter: 18px;
+  }
+
+  .site-header {
+    top: 10px;
+  }
+
+  .nav-shell {
+    width: calc(100% - 28px);
+    min-height: 62px;
+    padding: 0 12px;
+    border-radius: 13px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 35px;
+    height: 35px;
+  }
+
+  .brand-name {
+    font-size: 17px;
+    letter-spacing: -0.7px;
+  }
+
+  .brand-name small {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+
+  .menu-toggle {
+    display: flex;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-links {
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 12px;
+    gap: 3px;
+  }
+
+  .nav-links > a:not(.nav-cta) {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .nav-cta {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  .hero {
+    width: 100%;
+    height: auto;
+    min-height: max(680px, 100svh);
+    padding: 118px 0 72px;
+  }
+
+  .hero-media {
+    z-index: 0;
+  }
+
+  .hero-media > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 62% center;
+  }
+
+  .hero-vignette {
+    z-index: 1;
+    background:
+      linear-gradient(90deg, rgba(7,3,13,.96), rgba(9,4,16,.82) 72%, rgba(8,4,13,.58)),
+      linear-gradient(0deg, rgba(6,3,10,.78), transparent 65%);
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    width: calc(100% - 40px);
+    min-height: 490px;
+    align-items: center;
+  }
+
+  .hero-copy {
+    width: 100%;
+    max-width: 560px;
+    padding: 20px 0;
+  }
+
+  .hero h1 {
+    max-width: 100%;
+    margin: 16px 0 18px;
+    font-size: clamp(38px, 9.5vw, 52px);
+    line-height: 1.1;
+    letter-spacing: -2px;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-intro {
+    max-width: 470px;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: min(100%, 310px);
+    gap: 11px;
+    margin-top: 25px;
+  }
+
+  .hero-actions .button {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 16px;
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  .intro {
+    padding: 64px 0 70px;
+  }
+
+  .about-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 25px;
+    padding: 25px 0 35px;
+  }
+
+  .about-image {
+    width: 100%;
+    border-radius: 15px;
+  }
+
+  .about-image img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.35;
+    object-fit: cover;
+  }
+
+  .image-caption {
+    left: 12px;
+    bottom: 12px;
+    font-size: 12px;
+  }
+
+  .about-copy h2,
+  .section-heading h2 {
+    font-size: clamp(34px, 8.8vw, 46px);
+    line-height: 1.12;
+    letter-spacing: -1.8px;
+  }
+
+  .about-copy h2 span {
+    font-size: 0.76em;
+    line-height: 1.2;
+  }
+
+  .about-copy > p:not(.eyebrow) {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .approach-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .approach-strip article {
+    min-width: 0;
+    padding: 17px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .approach-strip article:last-child {
+    border-bottom: 0;
+  }
+
+  .approach-strip article > span {
+    font-size: 12px;
+  }
+
+  .approach-strip b {
+    font-size: 14px;
+  }
+
+  .approach-strip small {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .services {
+    padding: 55px 0 65px;
+  }
+
+  .section-heading {
+    display: block;
+    padding: 28px 0 24px;
+  }
+
+  .section-note {
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .service-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .service-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .service-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .service-card > div {
+    min-height: 0;
+    padding: 18px 17px 20px;
+  }
+
+  .service-card > div > span {
+    top: 18px;
+    right: 17px;
+    font-size: 12px;
+  }
+
+  .service-card h3 {
+    max-width: calc(100% - 28px);
+    margin-bottom: 9px;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .service-card p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .work {
+    padding: 0 0 65px;
+  }
+
+  .work-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 17px;
+  }
+
+  .project-card {
+    display: block;
+    min-width: 0;
+  }
+
+  .project-card-image {
+    width: 100%;
+  }
+
+  .project-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .project-card-copy {
+    padding: 18px 17px 20px;
+  }
+
+  .project-card-copy small,
+  .project-card small {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .project-card-copy h3,
+  .project-card h3 {
+    font-size: 18px;
+    line-height: 1.35;
+  }
+
+  .project-card-copy p,
+  .project-card p {
+    min-height: 0;
+    margin-bottom: 15px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .project-filters {
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .project-filter {
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .project-view-button {
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  .contact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    margin-bottom: 32px;
+    padding: 30px 20px;
+    border-radius: 16px;
+  }
+
+  .contact-copy {
+    padding-top: 0;
+  }
+
+  .contact-copy h2 {
+    margin: 10px 0 14px;
+    font-size: clamp(34px, 8.8vw, 46px);
+    line-height: 1.12;
+    letter-spacing: -1.8px;
+  }
+
+  .contact-copy > p:not(.eyebrow) {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .contact-copy .button {
+    width: 100%;
+    max-width: 310px;
+    min-height: 48px;
+    font-size: 13px;
+  }
+
+  .contact-side {
+    min-width: 0;
+    padding: 22px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .contact-side > p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .contact-side > a {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 13px 0;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  .footer {
+    width: 100%;
+    padding: 30px 20px 22px;
+  }
+
+  .footer-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px 18px;
+    padding-bottom: 24px;
+  }
+
+  .footer-about {
+    grid-column: 1 / -1;
+  }
+
+  .footer-about p {
+    max-width: 100%;
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  .footer-column {
+    min-width: 0;
+    gap: 12px;
+  }
+
+  .footer-column h3 {
+    font-size: 11px;
+  }
+
+  .footer-column a {
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .footer-legal {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  .whatsapp-float {
+    right: 15px;
+    bottom: 15px;
+    width: 52px;
+    height: 52px;
+  }
+
+  .whatsapp-float svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Project detail popup: scrollable and readable on phones */
+  .project-modal {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .project-modal-panel {
+    display: block;
+    width: 100%;
+    max-height: calc(100svh - 20px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 15px;
+  }
+
+  .project-modal-image-wrap {
+    min-height: 0;
+  }
+
+  .project-modal-image-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: 260px;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .project-modal-content {
+    padding: 22px 18px 24px;
+  }
+
+  .project-modal-content h2 {
+    font-size: 27px;
+    line-height: 1.15;
+    letter-spacing: -1px;
+  }
+
+  .project-modal-content > p:not(.section-kicker),
+  .project-modal-detail p {
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  .project-modal-detail {
+    margin: 20px 0;
+  }
+
+  .project-modal-close {
+    position: sticky;
+    float: right;
+    top: 10px;
+    right: 10px;
+    margin: 10px 10px -50px 0;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  :root {
+    --gutter: 15px;
+  }
+
+  .hero-inner,
+  .section {
+    width: calc(100% - 30px);
+  }
+
+  .hero {
+    padding-top: 108px;
+  }
+
+  .hero h1 {
+    font-size: clamp(34px, 9vw, 40px);
+    letter-spacing: -1.5px;
+  }
+
+  .hero-intro {
+    font-size: 13px;
+  }
+
+  .footer {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+  .footer-columns {
+    column-gap: 14px;
+  }
+}
+
+/* Improve readability for users who enlarge text */
+@media (max-width: 700px) {
+  .section-kicker,
+  .project-image-index {
+    font-size: 11px;
+  }
+
+  .text-link {
+    min-height: 42px;
+    font-size: 13px;
+  }
+}
