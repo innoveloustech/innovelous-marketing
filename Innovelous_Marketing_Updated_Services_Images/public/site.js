@@ -163,3 +163,137 @@ async function init() {
   initProjectModal();
 }
 init();
+/* ===== Innovelous testimonial carousel only ===== */
+function initTestimonialCarousel() {
+  const root = document.querySelector('[data-testimonial-carousel]');
+  if (!root) return;
+
+  const viewport = root.querySelector('[data-testimonial-viewport]');
+  const track = root.querySelector('[data-testimonial-track]');
+  const previous = root.querySelector('.testimonial-prev');
+  const next = root.querySelector('.testimonial-next');
+  if (!viewport || !track || !previous || !next) return;
+
+  const originals = Array.from(track.children);
+  if (originals.length < 2) return;
+
+  // Clone both ends to make the carousel loop without a visible jump.
+  const before = originals.map(card => card.cloneNode(true));
+  const after = originals.map(card => card.cloneNode(true));
+  before.forEach(card => { card.setAttribute('aria-hidden', 'true'); card.querySelectorAll('a,button,[tabindex]').forEach(el => el.setAttribute('tabindex', '-1')); });
+  after.forEach(card => { card.setAttribute('aria-hidden', 'true'); card.querySelectorAll('a,button,[tabindex]').forEach(el => el.setAttribute('tabindex', '-1')); });
+  before.reverse().forEach(card => track.insertBefore(card, track.firstChild));
+  after.forEach(card => track.appendChild(card));
+
+  let index = originals.length;
+  let step = 0;
+  let isDragging = false;
+  let startX = 0;
+  let startScroll = 0;
+  let suppressClick = false;
+
+  const getStep = () => {
+    const card = track.querySelector('.testimonial-card');
+    if (!card) return 0;
+    const styles = getComputedStyle(track);
+    return card.getBoundingClientRect().width + (parseFloat(styles.columnGap || styles.gap) || 0);
+  };
+  const positionAt = (animate = false) => {
+    step = getStep();
+    if (!step) return;
+    viewport.scrollTo({ left: index * step, behavior: animate ? 'smooth' : 'auto' });
+  };
+  const normalize = () => {
+    const total = originals.length;
+    if (index >= total * 2) {
+      index -= total;
+      positionAt(false);
+    } else if (index < total) {
+      index += total;
+      positionAt(false);
+    }
+  };
+  const move = direction => {
+    index += direction;
+    positionAt(true);
+  };
+
+  // Start on the original first card, after the prepended clones.
+  requestAnimationFrame(() => positionAt(false));
+  previous.addEventListener('click', () => move(-1));
+  next.addEventListener('click', () => move(1));
+
+  viewport.addEventListener('scroll', () => {
+    if (isDragging) return;
+    if (step && Math.abs(viewport.scrollLeft - index * step) > step * .55) {
+      index = Math.round(viewport.scrollLeft / step);
+      normalize();
+    }
+  }, { passive: true });
+
+  viewport.addEventListener('pointerdown', event => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    isDragging = true;
+    suppressClick = false;
+    startX = event.clientX;
+    startScroll = viewport.scrollLeft;
+    viewport.classList.add('is-dragging');
+    viewport.setPointerCapture?.(event.pointerId);
+  });
+  viewport.addEventListener('pointermove', event => {
+    if (!isDragging) return;
+    const delta = event.clientX - startX;
+    if (Math.abs(delta) > 5) suppressClick = true;
+    viewport.scrollLeft = startScroll - delta;
+  });
+  const endDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    viewport.classList.remove('is-dragging');
+    if (step) index = Math.round(viewport.scrollLeft / step);
+    normalize();
+  };
+  viewport.addEventListener('pointerup', endDrag);
+  viewport.addEventListener('pointercancel', endDrag);
+  viewport.addEventListener('lostpointercapture', endDrag);
+  viewport.addEventListener('click', event => {
+    if (suppressClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClick = false;
+    }
+  }, true);
+
+  viewport.addEventListener('keydown', event => {
+    if (event.key === 'ArrowLeft') { event.preventDefault(); move(-1); }
+    if (event.key === 'ArrowRight') { event.preventDefault(); move(1); }
+  });
+  window.addEventListener('resize', () => positionAt(false), { passive: true });
+}
+// Automatic infinite carousel movement
+let autoplayTimer;
+
+const startAutoplay = () => {
+  clearInterval(autoplayTimer);
+
+  autoplayTimer = setInterval(() => {
+    if (!isDragging) {
+      move(1);
+    }
+  }, 3500);
+};
+
+const stopAutoplay = () => {
+  clearInterval(autoplayTimer);
+};
+
+root.addEventListener('mouseenter', stopAutoplay);
+root.addEventListener('mouseleave', startAutoplay);
+
+root.addEventListener('touchstart', stopAutoplay, { passive: true });
+root.addEventListener('touchend', startAutoplay, { passive: true });
+
+root.addEventListener('focusin', stopAutoplay);
+root.addEventListener('focusout', startAutoplay);
+
+startAutoplay();
